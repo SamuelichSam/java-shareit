@@ -11,7 +11,7 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
-    private final String USER_HEADER = "X-Sharer-User-Id";
+    private static final String USER_HEADER = "X-Sharer-User-Id";
 
     public ItemController(ItemService itemService) {
         this.itemService = itemService;
