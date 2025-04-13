@@ -7,9 +7,9 @@ import java.util.List;
 public interface ItemService {
     ItemDto createItem(Long userId, ItemDto itemDto);
 
-    ItemWithCommentsDto getItemById(Long itemId, Long userId);
+    ItemDto getItemById(Long itemId, Long userId);
 
-    List<ItemWithCommentsDto> getAllUserItems(Long userId);
+    List<ItemDto> getAllUserItems(Long userId);
 
     List<ItemDto> getItemByText(String text);
 

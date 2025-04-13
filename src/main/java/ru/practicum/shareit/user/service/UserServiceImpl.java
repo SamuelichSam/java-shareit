@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -12,6 +13,7 @@ import ru.practicum.shareit.user.repo.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -20,12 +22,14 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto createUser(UserDto userDto) {
+        log.info("Создание пользователя - {}", userDto);
         User user = userRepository.save(UserMapper.toUser(userDto));
         return UserMapper.toDto(user);
     }
 
     @Override
     public List<UserDto> getAllUsers() {
+        log.info("Получение списка всех пользователей");
         return userRepository.findAll()
                 .stream()
                 .map(UserMapper::toDto)
@@ -34,6 +38,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long id) {
+        log.info("Получение пользователя с id - {}", id);
         User user = userRepository.findById(id).orElseThrow();
         return UserMapper.toDto(user);
     }
@@ -41,6 +46,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto updateUser(Long id, UserDto userDto) {
+        log.info("Обновление пользователя с id - {}", id);
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         if (userDto.name() != null) {
             user.setName(userDto.name());
@@ -55,6 +61,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteUserById(Long id) {
+        log.info("Удаление пользователя с id - {}", id);
         userRepository.deleteById(id);
     }
 }

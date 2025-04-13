@@ -4,7 +4,6 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemWithCommentsDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -29,14 +28,17 @@ public class ItemMapper {
                 item.getDescription(),
                 item.getAvailable(),
                 item.getOwner(),
-                item.getRequest()
+                item.getRequest(),
+                null,
+                null,
+                null
         );
     }
 
-    public static ItemWithCommentsDto toDtoWithComments(Item item, BookingResponseDto lastBooking,
-                                                        BookingResponseDto nextBooking,
-                                                        List<CommentResponseDto> comments) {
-        return new ItemWithCommentsDto(
+    public static ItemDto toDto(Item item, BookingResponseDto lastBooking,
+                                BookingResponseDto nextBooking,
+                                List<CommentResponseDto> comments) {
+        return new ItemDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),

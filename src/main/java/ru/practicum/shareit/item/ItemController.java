@@ -23,13 +23,13 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemWithCommentsDto getItemById(@PathVariable Long itemId,
-                                           @RequestHeader(USER_HEADER) Long userId) {
+    public ItemDto getItemById(@PathVariable Long itemId,
+                               @RequestHeader(USER_HEADER) Long userId) {
         return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemWithCommentsDto> getAllUserItems(@RequestHeader(USER_HEADER) Long userId) {
+    public List<ItemDto> getAllUserItems(@RequestHeader(USER_HEADER) Long userId) {
         return itemService.getAllUserItems(userId);
     }
 

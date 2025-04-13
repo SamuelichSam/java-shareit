@@ -38,18 +38,20 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
+        log.info("Создание вещи - {} пользователя с id - {}", itemDto, userId);
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
-        itemRepository.save(item);
-        return ItemMapper.toDto(item);
+        Item savedItem = itemRepository.save(item);
+        return ItemMapper.toDto(savedItem);
     }
 
     @Override
-    public ItemWithCommentsDto getItemById(Long itemId, Long userId) {
+    public ItemDto getItemById(Long itemId, Long userId) {
+        log.info("Получение вещи с id - {}", itemId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-        List<CommentResponseDto> comments = commentRepository.findByItemIdOrderByCreatedDesc(itemId).stream()
+        List<CommentResponseDto> comments = commentRepository.findAllByItemId(itemId).stream()
                 .map(CommentMapper::toDto)
                 .collect(Collectors.toList());
         BookingResponseDto lastBooking = null;
@@ -64,11 +66,12 @@ public class ItemServiceImpl implements ItemService {
         if (!nextBookings.isEmpty() && userId.equals(item.getOwner().getId())) {
             nextBooking = BookingMapper.toDto(nextBookings.getFirst());
         }
-        return ItemMapper.toDtoWithComments(item, lastBooking, nextBooking, comments);
+        return ItemMapper.toDto(item, lastBooking, nextBooking, comments);
     }
 
     @Override
-    public List<ItemWithCommentsDto> getAllUserItems(Long userId) {
+    public List<ItemDto> getAllUserItems(Long userId) {
+        log.info("Получение списка вещей пользователя с id - {}", userId);
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException("Пользователь не найден"));
         List<Item> items = itemRepository.findByOwnerId(userId);
@@ -77,7 +80,7 @@ public class ItemServiceImpl implements ItemService {
                     BookingResponseDto lastBooking = getLastBooking(item.getId());
                     BookingResponseDto nextBooking = getNextBooking(item.getId());
                     List<CommentResponseDto> comments = getCommentsByItemId(item.getId());
-                    return new ItemWithCommentsDto(
+                    return new ItemDto(
                             item.getId(),
                             item.getName(),
                             item.getDescription(),
@@ -112,6 +115,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
+        log.info("Обновление вещи с id - {}", itemId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
         if (!item.getOwner().getId().equals(userId)) {
@@ -132,12 +136,14 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public void deleteItem(Long itemId) {
+        log.info("Удаление вещи с id - {}", itemId);
         itemRepository.deleteById(itemId);
     }
 
     @Transactional
     @Override
     public CommentResponseDto addComment(Long itemId, Long userId, CommentDto commentDto) {
+        log.info("Добавление отзыва к вещи с id - {}", itemId);
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException("Пользователь не найден"));
         Item item = itemRepository.findById(itemId).orElseThrow(()
@@ -172,7 +178,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public List<CommentResponseDto> getCommentsByItemId(Long itemId) {
-        List<Comment> comments = commentRepository.findByItemIdOrderByCreatedDesc(itemId);
+        List<Comment> comments = commentRepository.findAllByItemId(itemId);
         return comments.stream()
                 .map(CommentMapper::toDto)
                 .collect(Collectors.toList());
