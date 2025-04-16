@@ -73,10 +73,6 @@ public class BookingServiceImpl implements BookingService {
                 -> new NotFoundException("Пользователь с id " + userId + " не найден"));
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(()
                 -> new NotFoundException("Бронирование не найдено"));
-        long bookersUserId = booking.getUser().getId();
-        if (userId.equals(bookersUserId)) {
-            throw new ValidationException("Этот пользователь не является автором бронирования");
-        }
         return BookingMapper.toDto(booking);
     }
 
