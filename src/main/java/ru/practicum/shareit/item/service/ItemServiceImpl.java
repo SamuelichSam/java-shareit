@@ -23,7 +23,9 @@ import ru.practicum.shareit.user.repo.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -75,11 +77,33 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException("Пользователь не найден"));
         List<Item> items = itemRepository.findByOwnerId(userId);
+        List<Long> itemIds = items.stream().map(Item::getId).toList();
+        Map<Long, List<Booking>> bookingsByItem = bookingRepository.findByItemIdIn(itemIds)
+                .stream()
+                .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
+        Map<Long, List<Comment>> commentsByItem = commentRepository.findByItemIdIn(itemIds)
+                .stream()
+                .collect(Collectors.groupingBy(comment -> comment.getItem().getId()));
+        LocalDateTime now = LocalDateTime.now();
         return items.stream()
                 .map(item -> {
-                    BookingResponseDto lastBooking = getLastBooking(item.getId());
-                    BookingResponseDto nextBooking = getNextBooking(item.getId());
-                    List<CommentResponseDto> comments = getCommentsByItemId(item.getId());
+                    List<Booking> itemBookings = bookingsByItem.getOrDefault(item.getId(), List.of());
+                    BookingResponseDto lastBooking = itemBookings.stream()
+                            .filter(b -> b.getStart().isBefore(now) &&
+                                    b.getStatus() == Status.APPROVED)
+                            .max(Comparator.comparing(Booking::getStart))
+                            .map(BookingMapper::toDto)
+                            .orElse(null);
+                    BookingResponseDto nextBooking = itemBookings.stream()
+                            .filter(b -> b.getStart().isAfter(now) &&
+                                    b.getStatus() == Status.APPROVED)
+                            .min(Comparator.comparing(Booking::getStart))
+                            .map(BookingMapper::toDto)
+                            .orElse(null);
+                    List<CommentResponseDto> comments = commentsByItem.getOrDefault(item.getId(), List.of())
+                            .stream()
+                            .map(CommentMapper::toDto)
+                            .collect(Collectors.toList());
                     return new ItemDto(
                             item.getId(),
                             item.getName(),
