@@ -1,7 +1,10 @@
 package ru.practicum.shareit.booking.dto;
 
-/**
- * TODO Sprint add-bookings.
- */
-public class BookingDto {
+import java.time.LocalDateTime;
+
+public record BookingDto(
+        Long itemId,
+        LocalDateTime start,
+        LocalDateTime end
+) {
 }
