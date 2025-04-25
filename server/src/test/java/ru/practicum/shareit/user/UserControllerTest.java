@@ -62,6 +62,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.name").value("user"))
                 .andExpect(jsonPath("$.email").value("user@email.com"));
     }
+
     @Test
     void getAllUsers() throws Exception {
         when(userService.getAllUsers())
