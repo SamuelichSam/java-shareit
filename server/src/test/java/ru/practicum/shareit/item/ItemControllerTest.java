@@ -26,9 +26,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -134,6 +132,22 @@ public class ItemControllerTest {
                         throw new AssertionError("Пустой лист c ItemDto");
                     }
                 }));
+    }
+
+    @Test
+    void updateItem() throws Exception {
+        when(itemService.updateItem(anyLong(), anyLong(), any()))
+                .thenReturn(itemDto);
+
+        mvc.perform(patch("/items/" + itemDto.id())
+                        .content(mapper.writeValueAsString(itemDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", userDto.id()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(0))
+                .andExpect(jsonPath("$.name").value("itemDto"))
+                .andExpect(jsonPath("$.available").value(true))
+                .andExpect(jsonPath("$.description").value("description"));
     }
 
     @Test
