@@ -191,29 +191,4 @@ public class ItemServiceImpl implements ItemService {
         Comment savedComment = commentRepository.save(comment);
         return CommentMapper.toDto(savedComment);
     }
-
-    public BookingRespDto getLastBooking(Long itemId) {
-        List<Booking> bookings = bookingRepository.findByItemIdAndEndBeforeOrderByEndDesc(itemId,
-                LocalDateTime.now());
-        if (!bookings.isEmpty()) {
-            return BookingMapper.toDto(bookings.getFirst());
-        }
-        return null;
-    }
-
-    public BookingRespDto getNextBooking(Long itemId) {
-        List<Booking> bookings = bookingRepository.findAllByItemIdAndStartAfterOrderByStartAsc(itemId,
-                LocalDateTime.now());
-        if (!bookings.isEmpty()) {
-            return BookingMapper.toDto(bookings.getFirst());
-        }
-        return null;
-    }
-
-    public List<CommentResponseDto> getCommentsByItemId(Long itemId) {
-        List<Comment> comments = commentRepository.findAllByItemId(itemId);
-        return comments.stream()
-                .map(CommentMapper::toDto)
-                .collect(Collectors.toList());
-    }
 }

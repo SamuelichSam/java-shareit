@@ -22,11 +22,13 @@ public class UserServiceTest {
     UserService userService;
     static UserDto userDtoInit1;
     static UserDto userDtoInit2;
+    static UserDto userDtoInitNull;
 
     @BeforeAll
     static void init() {
         userDtoInit1 = new UserDto(null, "user1@email.com", "user1");
         userDtoInit2 = new UserDto(null, "user2@email.com", "user2");
+        userDtoInitNull = new UserDto(null, null, null);
     }
 
     @Test
@@ -45,6 +47,16 @@ public class UserServiceTest {
 
         assertThat(userDto2.name()).isEqualTo(userDtoInit2.name());
         assertThat(userDto2.email()).isEqualTo(userDtoInit2.email());
+    }
+
+    @Test
+    void updateUserWithNullNameAndEmail() {
+        UserDto userDto = userService.createUser(userDtoInit1);
+
+        UserDto userDto2 = userService.updateUser(userDto.id(), userDtoInitNull);
+
+        assertThat(userDto2.name()).isEqualTo(userDtoInit1.name());
+        assertThat(userDto2.email()).isEqualTo(userDtoInit1.email());
     }
 
     @Test
