@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestRespDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
@@ -41,6 +42,12 @@ public class ItemRequestServiceTest {
         ItemRequestRespDto itemRequestRespDto = itemRequestService.createItemRequest(itemRequestDto, userDto.id());
 
         assertThat(itemRequestRespDto.description()).isEqualTo(itemRequestDto.description());
+    }
+
+    @Test
+    void createItemRequestWithWrongUser() {
+        assertThatThrownBy(() ->
+                itemRequestService.createItemRequest(itemRequestDto, 0L)).isInstanceOf(NotFoundException.class);
     }
 
     @Test

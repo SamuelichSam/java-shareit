@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.dto.BookingRespDto;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -33,6 +34,7 @@ public class BookingServiceTest {
     BookingService bookingService;
     static ItemDto itemDtoInit1;
     static ItemDto itemDtoInit2;
+    static ItemDto itemDtoInit3;
     static UserDto userDtoInit1;
     static UserDto userDtoInit2;
 
@@ -41,6 +43,8 @@ public class BookingServiceTest {
         itemDtoInit1 = new ItemDto(null, "name1", "description1", true, null, null,
                 null, null, null);
         itemDtoInit2 = new ItemDto(null, "name2", "description2", true, null, null,
+                null, null, null);
+        itemDtoInit3 = new ItemDto(null, "name3", "description3", false, null, null,
                 null, null, null);
         userDtoInit1 = new UserDto(null, "user1@email.com", "user1");
         userDtoInit2 = new UserDto(null, "user2@email.com", "user2");
@@ -58,6 +62,18 @@ public class BookingServiceTest {
         assertThat(bookingRespDto.booker().getId()).isEqualTo(userDto2.id());
         assertThat(bookingRespDto.start()).isEqualTo(bookingDto.start());
         assertThat(bookingRespDto.end()).isEqualTo(bookingDto.end());
+    }
+
+    @Test
+    void createBookingWithNotAvailableItem() {
+        UserDto userDto1 = userService.createUser(userDtoInit1);
+        UserDto userDto2 = userService.createUser(userDtoInit2);
+        ItemDto itemDto = itemService.createItem(userDto1.id(), itemDtoInit3);
+        BookingDto bookingDto = new BookingDto(itemDto.id(), LocalDateTime.now().minusHours(1), LocalDateTime.now());
+
+        assertThatThrownBy(() ->
+                bookingService.createBooking(bookingDto, userDto2.id()))
+                .isInstanceOf(ValidationException.class);
     }
 
     @Test
