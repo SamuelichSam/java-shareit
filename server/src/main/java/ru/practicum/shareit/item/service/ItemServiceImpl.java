@@ -43,17 +43,17 @@ public class ItemServiceImpl implements ItemService {
         log.info("Создание вещи - {} пользователя с id - {}", itemDto, userId);
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         ItemRequest request = null;
-        Long requestId = null;
         if (itemDto.requestId() != null) {
             request = itemRequestRepository.findById(itemDto.requestId())
                     .orElseThrow(() -> new NotFoundException("Запрос не найден"));
-            requestId = itemDto.requestId();
         }
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
         item.setRequest(request);
         Item savedItem = itemRepository.save(item);
-        return ItemMapper.toDto(savedItem, requestId);
+        return (request != null)
+                ? ItemMapper.toDto(savedItem, request.getId())
+                : ItemMapper.toDto(savedItem);
     }
 
     @Override

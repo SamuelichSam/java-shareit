@@ -1,19 +1,17 @@
 package ru.practicum.shareit.booking;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.State;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/bookings")
 public class BookingController {
     private final BookingClient bookingClient;
     private static final String USER_HEADER = "X-Sharer-User-Id";
-
-    public BookingController(BookingClient bookingClient) {
-        this.bookingClient = bookingClient;
-    }
 
     @PostMapping
     public ResponseEntity<Object> createBooking(@RequestBody BookingDto bookingDto,

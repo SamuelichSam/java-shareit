@@ -1,20 +1,18 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")
 public class ItemController {
     private final ItemClient itemClient;
     private static final String USER_HEADER = "X-Sharer-User-Id";
-
-    public ItemController(ItemClient itemClient) {
-        this.itemClient = itemClient;
-    }
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader(USER_HEADER) Long userId, @Valid @RequestBody ItemDto itemDto) {

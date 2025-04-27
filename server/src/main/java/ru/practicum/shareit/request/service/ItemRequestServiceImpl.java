@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repo.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestRespDto;
@@ -42,13 +43,18 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException("Пользователь не найден"));
         List<ItemRequest> requests = itemRequestRepository.findAllByRequesterIdOrderByCreatedDesc(userId);
-        List<Long> requestIds = requests.stream().map(ItemRequest::getId).toList();
-        List<ItemDto> items = itemRepository.findAllByRequestId(requestIds)
-                .stream()
-                .map(ItemMapper::toDto)
-                .toList();
+        List<Item> items = itemRepository.findAllByRequestIdIn(
+                requests.stream()
+                        .map(ItemRequest::getId).toList()
+        );
         return requests.stream()
-                .map(request -> ItemRequestMapper.toDto(request, items))
+                .map(request -> {
+                    List<ItemDto> requestItems = items.stream()
+                            .filter(item -> request.getId().equals(item.getRequest().getId()))
+                            .map(ItemMapper::toDto)
+                            .toList();
+                    return ItemRequestMapper.toDto(request, requestItems);
+                })
                 .toList();
     }
 
@@ -58,8 +64,18 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException("Пользователь не найден"));
         List<ItemRequest> requests = itemRequestRepository.findAll();
+        List<Item> items = itemRepository.findAllByRequestIdIn(
+                requests.stream()
+                        .map(ItemRequest::getId).toList()
+        );
         return requests.stream()
-                .map(ItemRequestMapper::toDto)
+                .map(request -> {
+                    List<ItemDto> requestItems = items.stream()
+                            .filter(item -> request.getId().equals(item.getRequest().getId()))
+                            .map(ItemMapper::toDto)
+                            .toList();
+                    return ItemRequestMapper.toDto(request, requestItems);
+                })
                 .toList();
     }
 
